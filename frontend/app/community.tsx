@@ -564,7 +564,7 @@ const NAV = [
     label: "Community",
     active: true,
   },
-  { key: "profile", route: "/community", icon: "person-outline" as const, label: "Profile" },
+  { key: "profile", route: "/profile", icon: "person-outline" as const, label: "Profile" },
 ];
 
 function BottomNav() {

@@ -699,7 +699,7 @@ const NAV = [
   { key: "sessions", route: "/", icon: "calendar-outline" as const, label: "Sessions" },
   { key: "coaches", route: "/trainers", icon: "compass-outline" as const, label: "Coaches", active: true },
   { key: "community", route: "/community", icon: "people-outline" as const, label: "Community" },
-  { key: "profile", route: "/", icon: "person-outline" as const, label: "Profile" },
+  { key: "profile", route: "/profile", icon: "person-outline" as const, label: "Profile" },
 ];
 
 function BottomNav() {
