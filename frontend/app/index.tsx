@@ -528,7 +528,7 @@ function Header({ scrollY }: { scrollY: Animated.SharedValue<number> }) {
 const NAV = [
   { key: "home", route: "/", icon: "home-outline" as const, label: "Home" },
   { key: "sessions", route: "/", icon: "calendar-outline" as const, label: "Sessions", active: true },
-  { key: "coaches", route: "/community", icon: "compass-outline" as const, label: "Coaches" },
+  { key: "coaches", route: "/trainers", icon: "compass-outline" as const, label: "Coaches" },
   { key: "community", route: "/community", icon: "people-outline" as const, label: "Community" },
   { key: "profile", route: "/", icon: "person-outline" as const, label: "Profile" },
 ];

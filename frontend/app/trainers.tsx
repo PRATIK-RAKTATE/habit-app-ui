@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Pressable,
   ScrollView,
+  TextInput,
   Platform,
   StatusBar,
 } from "react-native";
@@ -30,7 +31,7 @@ import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 
 // --------------------------------------------------------------------------
-// Design tokens (shared with Events)
+// Design tokens
 // --------------------------------------------------------------------------
 const C = {
   bg: "#F2F1E6",
@@ -44,82 +45,124 @@ const C = {
   lime: "#DAFE4C",
   limeDeep: "#B8E132",
   white: "#FFFFFF",
+  star: "#FFB84D",
 };
-
-const HERO_H = 380;
 
 // --------------------------------------------------------------------------
 // Data
 // --------------------------------------------------------------------------
-const TABS = ["For You", "Following", "Trending"] as const;
 const CHIPS = [
   { label: "All", icon: "sparkles-outline" as const },
-  { label: "Runners", icon: "walk-outline" as const },
   { label: "Yoga", icon: "leaf-outline" as const },
-  { label: "Lifters", icon: "barbell-outline" as const },
-  { label: "Cyclists", icon: "bicycle-outline" as const },
-  { label: "Trails", icon: "map-outline" as const },
+  { label: "Strength", icon: "barbell-outline" as const },
+  { label: "HIIT", icon: "flame-outline" as const },
+  { label: "Pilates", icon: "flower-outline" as const },
+  { label: "Running", icon: "walk-outline" as const },
+  { label: "Boxing", icon: "hand-left-outline" as const },
 ];
 
-const POSTS = [
+const FILTERS = [
+  { label: "Near me", icon: "location-outline" as const },
+  { label: "4.5+ rating", icon: "star-outline" as const },
+  { label: "Online", icon: "wifi-outline" as const },
+  { label: "Under ₹800", icon: "pricetag-outline" as const },
+  { label: "Verified", icon: "checkmark-circle-outline" as const },
+];
+
+const TOP_RATED = [
   {
-    id: "1",
-    author: "Neha Kapoor",
-    handle: "@nehaflows",
-    role: "Yoga Coach · Mumbai",
+    id: "t1",
+    name: "Neha Kapoor",
+    specialty: "Vinyasa · Ashtanga",
+    rating: 4.9,
+    reviews: 218,
+    price: 899,
+    dist: "1.2 km",
+    online: true,
+    verified: true,
     avatar:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&q=80",
-    time: "12m",
-    tag: "SUNRISE CLUB",
-    title: "5 AM crew — who's rolling tomorrow at Marine Drive?",
-    image:
-      "https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=1200&q=80",
-    likes: 428,
-    comments: 62,
-    shares: 14,
-    reactColors: ["#FFB4B4", "#DAFE4C", "#A8D8FF"],
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&q=80",
+    accent: "#DAFE4C",
   },
   {
-    id: "2",
-    author: "Arjun Mehta",
-    handle: "@arjun.lifts",
-    role: "Strength Coach · Bandra",
+    id: "t2",
+    name: "Arjun Mehta",
+    specialty: "Powerlifting · Strength",
+    rating: 4.8,
+    reviews: 342,
+    price: 1200,
+    dist: "3.4 km",
+    online: false,
+    verified: true,
     avatar:
-      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=300&q=80",
-    time: "1h",
-    tag: "LIFT CLUB",
-    title: "Hit a 180kg deadlift PR — the crew showed up 💥",
-    image:
+      "https://images.unsplash.com/photo-1567013127542-490d757e51fc?w=600&q=80",
+    accent: "#FFC9A8",
+  },
+  {
+    id: "t3",
+    name: "Zara Ali",
+    specialty: "Trail · Marathon",
+    rating: 4.9,
+    reviews: 156,
+    price: 749,
+    dist: "2.1 km",
+    online: true,
+    verified: false,
+    avatar:
+      "https://images.unsplash.com/photo-1594381898411-846e7d193883?w=600&q=80",
+    accent: "#BFE8FF",
+  },
+];
+
+const ALL_TRAINERS = [
+  {
+    id: "a1",
+    name: "Kabir Nair",
+    specialty: "HIIT & Conditioning",
+    tag: "HIIT",
+    rating: 4.8,
+    reviews: 412,
+    price: 950,
+    dist: "0.8 km",
+    online: true,
+    verified: true,
+    photo:
       "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&q=80",
-    likes: 1214,
-    comments: 184,
-    shares: 47,
-    reactColors: ["#DAFE4C", "#FFC9A8", "#C9C0FF"],
+    avail: ["M", "T", "W", "T", "F", "S", "S"],
+    availActive: [1, 2, 4, 5],
   },
   {
-    id: "3",
-    author: "Zara Ali",
-    handle: "@zararuns",
-    role: "Runner · Powai",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&q=80",
-    time: "3h",
-    tag: "TRAIL PACK",
-    title: "Powai loop @ dawn — 12km, insane light. Ping if in.",
-    image:
-      "https://images.unsplash.com/photo-1502904550040-7534597429ae?w=1200&q=80",
-    likes: 692,
-    comments: 88,
-    shares: 21,
-    reactColors: ["#B9FFE1", "#DAFE4C", "#FFD6A8"],
+    id: "a2",
+    name: "Priya Sharma",
+    specialty: "Pilates & Mobility",
+    tag: "PILATES",
+    rating: 4.9,
+    reviews: 287,
+    price: 850,
+    dist: "1.5 km",
+    online: false,
+    verified: true,
+    photo:
+      "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1200&q=80",
+    avail: ["M", "T", "W", "T", "F", "S", "S"],
+    availActive: [0, 2, 3, 5, 6],
   },
-];
-
-const GROUPS = [
-  { name: "Sunrise Yoga", members: "2.4k", color: "#FFE9A8", icon: "leaf-outline" as const },
-  { name: "Marine Runners", members: "5.1k", color: "#BFE8FF", icon: "walk-outline" as const },
-  { name: "Lift Club", members: "1.8k", color: "#DAFE4C", icon: "barbell-outline" as const },
-  { name: "Trail Pack", members: "912", color: "#F4B0FF", icon: "map-outline" as const },
+  {
+    id: "a3",
+    name: "Rohan Iyer",
+    specialty: "Boxing & Cardio",
+    tag: "BOXING",
+    rating: 4.7,
+    reviews: 194,
+    price: 1100,
+    dist: "4.2 km",
+    online: true,
+    verified: false,
+    photo:
+      "https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=1200&q=80",
+    avail: ["M", "T", "W", "T", "F", "S", "S"],
+    availActive: [1, 3, 4, 5, 6],
+  },
 ];
 
 // --------------------------------------------------------------------------
@@ -131,7 +174,7 @@ const buzz = () => {
 };
 
 // --------------------------------------------------------------------------
-// Ambient orbs
+// Backdrop
 // --------------------------------------------------------------------------
 function AmbientBackdrop() {
   const t = useSharedValue(0);
@@ -182,56 +225,46 @@ function PulseDot({ color = C.lime }: { color?: string }) {
 }
 
 // --------------------------------------------------------------------------
-// Segmented Tabs
+// Search Bar (glass, prominent)
 // --------------------------------------------------------------------------
-function SegmentedTabs({
+function SearchBar({
   value,
   onChange,
 }: {
-  value: number;
-  onChange: (i: number) => void;
+  value: string;
+  onChange: (v: string) => void;
 }) {
-  const [width, setWidth] = useState(0);
-  const seg = width / TABS.length;
-  const x = useSharedValue(0);
-  useEffect(() => {
-    x.value = withSpring(value * seg, { damping: 18, stiffness: 180 });
-  }, [value, seg, x]);
-  const pill = useAnimatedStyle(() => ({
-    transform: [{ translateX: x.value }],
-    width: seg,
+  const focus = useSharedValue(0);
+  const anim = useAnimatedStyle(() => ({
+    borderColor: focus.value
+      ? C.ink
+      : (C.hair as any),
+    shadowOpacity: interpolate(focus.value, [0, 1], [0.04, 0.12]),
   }));
   return (
-    <View
-      style={styles.tabsWrap}
-      onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
-      testID="community-tabs"
-    >
-      <Animated.View style={[styles.tabPill, pill]}>
-        <LinearGradient colors={[C.ink, "#242423"]} style={StyleSheet.absoluteFill} />
-      </Animated.View>
-      {TABS.map((t, i) => (
-        <Pressable
-          key={t}
-          onPress={() => {
-            buzz();
-            onChange(i);
-          }}
-          style={styles.tabItem}
-          testID={`tab-${t.toLowerCase().replace(" ", "-")}`}
-        >
-          <Text style={[styles.tabText, value === i && styles.tabTextActive]}>{t}</Text>
-          {value === i && (
-            <Animated.View entering={FadeIn.duration(200)} style={styles.tabDot} />
-          )}
-        </Pressable>
-      ))}
-    </View>
+    <Animated.View style={[styles.searchWrap, anim]} testID="search-wrap">
+      <View style={styles.searchIcon}>
+        <Ionicons name="search" size={20} color={C.ink} />
+      </View>
+      <TextInput
+        placeholder="Search coach, sport, or vibe"
+        placeholderTextColor={C.mute}
+        value={value}
+        onChangeText={onChange}
+        onFocus={() => (focus.value = withTiming(1))}
+        onBlur={() => (focus.value = withTiming(0))}
+        style={styles.searchInput}
+        testID="search-input"
+      />
+      <Pressable style={styles.micBtn} onPress={buzz} testID="mic-btn">
+        <Ionicons name="mic-outline" size={16} color={C.lime} />
+      </Pressable>
+    </Animated.View>
   );
 }
 
 // --------------------------------------------------------------------------
-// Chip Row
+// Chips
 // --------------------------------------------------------------------------
 function Chips({
   value,
@@ -245,7 +278,7 @@ function Chips({
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.chipRow}
-      testID="community-chips"
+      testID="category-chips"
     >
       {CHIPS.map((c, i) => {
         const active = i === value;
@@ -272,9 +305,61 @@ function Chips({
 }
 
 // --------------------------------------------------------------------------
-// Featured Spotlight (parallax hero)
+// Filter chips (secondary line, glass w/ close x)
 // --------------------------------------------------------------------------
-function FeaturedSpotlight({ scrollY }: { scrollY: Animated.SharedValue<number> }) {
+function FilterChips({
+  active,
+  onToggle,
+}: {
+  active: Set<number>;
+  onToggle: (i: number) => void;
+}) {
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.filterRow}
+      testID="filter-chips"
+    >
+      <Pressable style={styles.filterFab} onPress={buzz} testID="open-filters">
+        <Ionicons name="options-outline" size={16} color={C.lime} />
+      </Pressable>
+      {FILTERS.map((f, i) => {
+        const isOn = active.has(i);
+        return (
+          <Pressable
+            key={f.label}
+            onPress={() => {
+              buzz();
+              onToggle(i);
+            }}
+            style={[styles.filterChip, isOn && styles.filterChipOn]}
+            testID={`filter-${f.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+          >
+            <Ionicons
+              name={f.icon}
+              size={13}
+              color={isOn ? C.lime : C.inkSoft}
+            />
+            <Text style={[styles.filterText, isOn && styles.filterTextOn]}>
+              {f.label}
+            </Text>
+            {isOn && <Ionicons name="close" size={12} color={C.lime} />}
+          </Pressable>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
+// --------------------------------------------------------------------------
+// Featured Trainer Hero (parallax)
+// --------------------------------------------------------------------------
+function FeaturedTrainer({
+  scrollY,
+}: {
+  scrollY: Animated.SharedValue<number>;
+}) {
   const imgStyle = useAnimatedStyle(() => ({
     transform: [
       {
@@ -299,11 +384,11 @@ function FeaturedSpotlight({ scrollY }: { scrollY: Animated.SharedValue<number> 
     <Animated.View
       entering={FadeInDown.duration(500).delay(100)}
       style={styles.hero}
-      testID="featured-spotlight"
+      testID="featured-trainer"
     >
       <Animated.View style={[StyleSheet.absoluteFill, imgStyle]}>
         <Image
-          source="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=1400&q=80"
+          source="https://images.unsplash.com/photo-1554058429-6c9c56e4f4c4?w=1400&q=80"
           style={StyleSheet.absoluteFill}
           contentFit="cover"
           transition={400}
@@ -314,43 +399,48 @@ function FeaturedSpotlight({ scrollY }: { scrollY: Animated.SharedValue<number> 
         locations={[0, 0.45, 1]}
         style={StyleSheet.absoluteFill}
       />
+
       <View style={styles.heroTicker}>
         <Text style={styles.heroTickerText}>
-          ◇ SPOTLIGHT  ◇ SPOTLIGHT  ◇ SPOTLIGHT
+          ◇ TOP COACH  ◇ TOP COACH  ◇ TOP COACH
         </Text>
       </View>
+
       <View style={styles.heroTop}>
         <BlurView intensity={40} tint="dark" style={styles.heroBadge}>
           <View style={styles.limeSquare} />
-          <Text style={styles.heroBadgeText}>SPOTLIGHT · CREW</Text>
+          <Text style={styles.heroBadgeText}>COACH OF THE WEEK</Text>
         </BlurView>
         <View style={styles.heroLive}>
           <PulseDot />
-          <Text style={styles.heroLiveText}>324 LIVE</Text>
+          <Text style={styles.heroLiveText}>ONLINE</Text>
         </View>
       </View>
 
       <View style={styles.heroBottom}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.heroKicker}>THIS WEEK · CREW</Text>
+          <Text style={styles.heroKicker}>YOGA · MOBILITY</Text>
           <Text style={styles.heroTitle} numberOfLines={2}>
-            Sunrise{"\n"}Runners Club
+            Aisha{"\n"}Verma
           </Text>
           <View style={styles.heroMetaRow}>
             <View style={styles.heroMetaChip}>
-              <Ionicons name="people-outline" size={12} color={C.white} />
-              <Text style={styles.heroMetaText}>5.1k members</Text>
+              <Ionicons name="star" size={11} color={C.star} />
+              <Text style={styles.heroMetaText}>4.98 · 512</Text>
             </View>
             <View style={styles.heroMetaChip}>
-              <Ionicons name="chatbubble-ellipses-outline" size={12} color={C.white} />
-              <Text style={styles.heroMetaText}>128 posts</Text>
+              <Ionicons name="location-outline" size={11} color={C.white} />
+              <Text style={styles.heroMetaText}>0.6 km</Text>
+            </View>
+            <View style={styles.heroMetaChip}>
+              <Text style={styles.heroMetaText}>₹ 999 / session</Text>
             </View>
           </View>
         </View>
 
-        <Pressable style={styles.joinBtn} onPress={buzz} testID="join-crew">
+        <Pressable style={styles.joinBtn} onPress={buzz} testID="book-featured">
           <View style={styles.joinBtnInner}>
-            <Text style={styles.joinBtnText}>Join</Text>
+            <Text style={styles.joinBtnText}>Book</Text>
             <View style={styles.joinBtnArrow}>
               <Feather name="arrow-up-right" size={18} color={C.lime} />
             </View>
@@ -362,54 +452,88 @@ function FeaturedSpotlight({ scrollY }: { scrollY: Animated.SharedValue<number> 
 }
 
 // --------------------------------------------------------------------------
-// Popular Groups horizontal rail
+// Top Rated horizontal rail card
 // --------------------------------------------------------------------------
-function GroupsRail() {
+function TopRatedCard({
+  t,
+  index,
+}: {
+  t: (typeof TOP_RATED)[number];
+  index: number;
+}) {
+  const scale = useSharedValue(1);
+  const pressed = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.groupsRail}
-      testID="groups-rail"
+    <AnimatedPressable
+      entering={FadeInDown.duration(400).delay(80 * index)}
+      onPressIn={() => (scale.value = withSpring(0.97))}
+      onPressOut={() => (scale.value = withSpring(1))}
+      onPress={buzz}
+      style={[styles.rrCard, pressed]}
+      testID={`top-rated-${t.id}`}
     >
-      {GROUPS.map((g, i) => (
-        <AnimatedPressable
-          key={g.name}
-          entering={FadeInDown.duration(400).delay(60 * i)}
-          onPress={buzz}
-          style={styles.groupCard}
-          testID={`group-${g.name.toLowerCase().replace(" ", "-")}`}
-        >
-          <View style={[styles.groupIcon, { backgroundColor: g.color }]}>
-            <Ionicons name={g.icon} size={20} color={C.ink} />
+      <View style={[styles.rrImgWrap, { backgroundColor: t.accent }]}>
+        <Image
+          source={t.avatar}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          transition={300}
+        />
+        {t.online && (
+          <View style={styles.rrOnline}>
+            <View style={styles.rrOnlineDot} />
           </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.groupName} numberOfLines={1}>
-              {g.name}
-            </Text>
-            <Text style={styles.groupMembers}>{g.members} members</Text>
+        )}
+        {t.verified && (
+          <View style={styles.rrVerified}>
+            <Ionicons name="checkmark" size={10} color={C.ink} />
           </View>
-          <View style={styles.groupPlus}>
-            <Feather name="plus" size={14} color={C.lime} />
+        )}
+      </View>
+      <View style={styles.rrBody}>
+        <View style={styles.rrNameRow}>
+          <Text style={styles.rrName} numberOfLines={1}>
+            {t.name}
+          </Text>
+          <View style={styles.rrRating}>
+            <Ionicons name="star" size={10} color={C.star} />
+            <Text style={styles.rrRatingText}>{t.rating}</Text>
           </View>
-        </AnimatedPressable>
-      ))}
-    </ScrollView>
+        </View>
+        <Text style={styles.rrSpec} numberOfLines={1}>
+          {t.specialty}
+        </Text>
+        <View style={styles.rrFoot}>
+          <Text style={styles.rrPrice}>
+            ₹ {t.price}
+            <Text style={styles.rrPriceUnit}> /sess</Text>
+          </Text>
+          <View style={styles.rrDist}>
+            <Ionicons name="location-outline" size={10} color={C.mute} />
+            <Text style={styles.rrDistText}>{t.dist}</Text>
+          </View>
+        </View>
+      </View>
+    </AnimatedPressable>
   );
 }
 
 // --------------------------------------------------------------------------
-// Feed Post Card (editorial + glass reactions)
+// All Trainers editorial list card
 // --------------------------------------------------------------------------
-function PostCard({
-  post,
+function TrainerCard({
+  t,
   index,
 }: {
-  post: (typeof POSTS)[number];
+  t: (typeof ALL_TRAINERS)[number];
   index: number;
 }) {
   const scale = useSharedValue(1);
-  const pressed = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const pressed = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
   return (
     <AnimatedPressable
       entering={FadeInDown.duration(520).delay(120 * index)}
@@ -417,90 +541,108 @@ function PostCard({
       onPressOut={() => (scale.value = withSpring(1))}
       onPress={buzz}
       style={[styles.card, pressed]}
-      testID={`post-card-${post.id}`}
+      testID={`trainer-card-${t.id}`}
     >
-      {/* Author row */}
-      <View style={styles.postHead}>
-        <View style={styles.postAvatarWrap}>
+      <View style={styles.cardTop}>
+        <View style={styles.trainerImgWrap}>
           <Image
-            source={post.avatar}
-            style={styles.postAvatar}
+            source={t.photo}
+            style={StyleSheet.absoluteFill}
             contentFit="cover"
-            transition={200}
+            transition={300}
           />
-          <View style={styles.postAvatarRing} />
-        </View>
-        <View style={{ flex: 1, marginLeft: 12 }}>
-          <View style={styles.postAuthorRow}>
-            <Text style={styles.postAuthor}>{post.author}</Text>
-            <View style={styles.postDot} />
-            <Text style={styles.postTime}>{post.time}</Text>
-          </View>
-          <Text style={styles.postRole}>{post.role}</Text>
-        </View>
-        <Pressable style={styles.postMore} onPress={buzz}>
-          <Feather name="more-horizontal" size={18} color={C.ink} />
-        </Pressable>
-      </View>
-
-      <Text style={styles.postTitle}>{post.title}</Text>
-
-      {/* Image */}
-      <View style={styles.postImgWrap}>
-        <Image
-          source={post.image}
-          style={StyleSheet.absoluteFill}
-          contentFit="cover"
-          transition={300}
-        />
-        <LinearGradient
-          colors={["rgba(0,0,0,0.35)", "transparent", "rgba(0,0,0,0.35)"]}
-          locations={[0, 0.5, 1]}
-          style={StyleSheet.absoluteFill}
-        />
-        <View style={styles.cardIndex}>
-          <Text style={styles.cardIndexText}>
-            {String(index + 1).padStart(2, "0")}
-            <Text style={styles.cardIndexTotal}>
-              {" "}/ {String(POSTS.length).padStart(2, "0")}
+          {t.online && (
+            <View style={styles.onlinePill}>
+              <View style={styles.onlineDot} />
+              <Text style={styles.onlineText}>ONLINE</Text>
+            </View>
+          )}
+          <View style={styles.cardIndex}>
+            <Text style={styles.cardIndexText}>
+              {String(index + 1).padStart(2, "0")}
+              <Text style={styles.cardIndexTotal}>
+                {" "}/ {String(ALL_TRAINERS.length).padStart(2, "0")}
+              </Text>
             </Text>
-          </Text>
+          </View>
         </View>
-        <View style={styles.cardTag}>
-          <View style={styles.cardTagDot} />
-          <Text style={styles.cardTagText}>{post.tag}</Text>
+
+        <View style={{ flex: 1, marginLeft: 14 }}>
+          <View style={styles.trainerNameRow}>
+            <Text style={styles.trainerName} numberOfLines={1}>
+              {t.name}
+            </Text>
+            {t.verified && (
+              <View style={styles.verifiedTick}>
+                <Ionicons name="checkmark" size={10} color={C.lime} />
+              </View>
+            )}
+          </View>
+          <Text style={styles.trainerSpec}>{t.specialty}</Text>
+
+          <View style={styles.tagRow}>
+            <View style={styles.trainerTag}>
+              <View style={styles.trainerTagDot} />
+              <Text style={styles.trainerTagText}>{t.tag}</Text>
+            </View>
+            <View style={styles.trainerDist}>
+              <Ionicons name="location-outline" size={11} color={C.mute} />
+              <Text style={styles.trainerDistText}>{t.dist}</Text>
+            </View>
+          </View>
+
+          <View style={styles.ratingRow}>
+            <Ionicons name="star" size={13} color={C.star} />
+            <Text style={styles.ratingText}>{t.rating}</Text>
+            <Text style={styles.reviewsText}>· {t.reviews} reviews</Text>
+          </View>
         </View>
-        <BlurView intensity={30} tint="light" style={styles.saveBtn}>
-          <Ionicons name="bookmark-outline" size={16} color={C.white} />
-        </BlurView>
       </View>
 
-      {/* Reactions row */}
-      <View style={styles.postFooter}>
-        <View style={styles.reactRow}>
-          {post.reactColors.map((c, i) => (
-            <View
-              key={i}
-              style={[
-                styles.reactDot,
-                { backgroundColor: c, marginLeft: i === 0 ? 0 : -8 },
-              ]}
-            />
-          ))}
-          <Text style={styles.reactCount}>{post.likes.toLocaleString()}</Text>
+      {/* Availability row */}
+      <View style={styles.availWrap}>
+        <Text style={styles.availLabel}>Next 7 days</Text>
+        <View style={styles.availPills}>
+          {t.avail.map((d, i) => {
+            const on = t.availActive.includes(i);
+            return (
+              <View
+                key={i}
+                style={[styles.availPill, on && styles.availPillOn]}
+              >
+                <Text style={[styles.availText, on && styles.availTextOn]}>
+                  {d}
+                </Text>
+              </View>
+            );
+          })}
         </View>
+      </View>
 
-        <View style={styles.reactActions}>
-          <Pressable style={styles.reactBtn} onPress={buzz} testID={`like-${post.id}`}>
-            <Ionicons name="heart-outline" size={16} color={C.ink} />
+      {/* Footer */}
+      <View style={styles.cardFooter}>
+        <View>
+          <Text style={styles.priceBig}>
+            ₹ {t.price}
+            <Text style={styles.priceUnit}> /session</Text>
+          </Text>
+          <Text style={styles.priceHint}>free 15-min intro call</Text>
+        </View>
+        <View style={styles.footerActions}>
+          <Pressable
+            style={styles.chatBtn}
+            onPress={buzz}
+            testID={`chat-${t.id}`}
+          >
+            <Ionicons name="chatbubble-ellipses-outline" size={16} color={C.ink} />
           </Pressable>
-          <Pressable style={styles.reactBtn} onPress={buzz} testID={`comment-${post.id}`}>
-            <Ionicons name="chatbubble-outline" size={14} color={C.ink} />
-            <Text style={styles.reactBtnText}>{post.comments}</Text>
-          </Pressable>
-          <Pressable style={styles.shareBtn} onPress={buzz} testID={`share-${post.id}`}>
-            <Feather name="send" size={13} color={C.lime} />
-            <Text style={styles.shareBtnText}>Share</Text>
+          <Pressable
+            style={styles.bookBtn}
+            onPress={buzz}
+            testID={`book-${t.id}`}
+          >
+            <Text style={styles.bookBtnText}>Book</Text>
+            <Feather name="arrow-right" size={14} color={C.lime} />
           </Pressable>
         </View>
       </View>
@@ -520,7 +662,7 @@ function Header({ scrollY }: { scrollY: Animated.SharedValue<number> }) {
   return (
     <View
       style={[styles.header, { paddingTop: insets.top + 6 }]}
-      testID="community-header"
+      testID="trainers-header"
     >
       <Animated.View style={[StyleSheet.absoluteFill, glass]}>
         <BlurView intensity={40} tint="light" style={StyleSheet.absoluteFill} />
@@ -532,18 +674,17 @@ function Header({ scrollY }: { scrollY: Animated.SharedValue<number> }) {
           onPress={() => router.back()}
           testID="back-btn"
         >
-          <Feather name="arrow-left" size={18} color={C.ink} />
+          <Feather name="arrow-left" size={18} color={C.lime} />
         </Pressable>
         <View style={{ flex: 1, marginLeft: 12 }}>
-          <Text style={styles.headerHello}>Together we move</Text>
-          <Text style={styles.headerTitle}>Community</Text>
+          <Text style={styles.headerHello}>Level up with a pro</Text>
+          <Text style={styles.headerTitle}>Find a Coach</Text>
         </View>
-        <Pressable style={styles.headerIcon} testID="dm-btn">
-          <Ionicons name="paper-plane-outline" size={18} color={C.ink} />
-          <View style={styles.headerIconDot} />
+        <Pressable style={styles.headerIcon} testID="map-btn">
+          <Ionicons name="map-outline" size={18} color={C.ink} />
         </Pressable>
-        <Pressable style={[styles.headerIcon, { marginLeft: 10 }]} testID="search-btn">
-          <Ionicons name="search" size={20} color={C.ink} />
+        <Pressable style={[styles.headerIcon, { marginLeft: 10 }]} testID="sort-btn">
+          <Ionicons name="swap-vertical" size={18} color={C.ink} />
         </Pressable>
       </View>
     </View>
@@ -556,15 +697,9 @@ function Header({ scrollY }: { scrollY: Animated.SharedValue<number> }) {
 const NAV = [
   { key: "home", route: "/", icon: "home-outline" as const, label: "Home" },
   { key: "sessions", route: "/", icon: "calendar-outline" as const, label: "Sessions" },
-  { key: "coaches", route: "/trainers", icon: "compass-outline" as const, label: "Coaches" },
-  {
-    key: "community",
-    route: "/community",
-    icon: "people-outline" as const,
-    label: "Community",
-    active: true,
-  },
-  { key: "profile", route: "/community", icon: "person-outline" as const, label: "Profile" },
+  { key: "coaches", route: "/trainers", icon: "compass-outline" as const, label: "Coaches", active: true },
+  { key: "community", route: "/community", icon: "people-outline" as const, label: "Community" },
+  { key: "profile", route: "/", icon: "person-outline" as const, label: "Profile" },
 ];
 
 function BottomNav() {
@@ -606,25 +741,28 @@ function BottomNav() {
 }
 
 // --------------------------------------------------------------------------
-// Main Screen
+// Screen
 // --------------------------------------------------------------------------
-export default function CommunityScreen() {
-  const [tab, setTab] = useState(0);
+export default function TrainersScreen() {
+  const [query, setQuery] = useState("");
   const [chip, setChip] = useState(0);
+  const [filters, setFilters] = useState<Set<number>>(new Set([0, 1]));
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (e) => {
       scrollY.value = e.contentOffset.y;
     },
   });
+  const toggleFilter = (i: number) => {
+    const next = new Set(filters);
+    if (next.has(i)) next.delete(i);
+    else next.add(i);
+    setFilters(next);
+  };
 
   return (
     <SafeAreaView edges={["left", "right"]} style={styles.root}>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="transparent"
-        translucent
-      />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       <AmbientBackdrop />
 
       <Animated.ScrollView
@@ -632,19 +770,28 @@ export default function CommunityScreen() {
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
-        testID="community-scroll"
+        keyboardShouldPersistTaps="handled"
+        testID="trainers-scroll"
       >
         <View style={{ height: 96 }} />
 
+        {/* Search */}
         <Animated.View entering={FadeInDown.duration(400)}>
-          <SegmentedTabs value={tab} onChange={setTab} />
+          <SearchBar value={query} onChange={setQuery} />
         </Animated.View>
 
+        {/* Chips */}
         <Animated.View entering={FadeInDown.duration(400).delay(60)}>
           <Chips value={chip} onChange={setChip} />
         </Animated.View>
 
-        <FeaturedSpotlight scrollY={scrollY} />
+        {/* Featured */}
+        <FeaturedTrainer scrollY={scrollY} />
+
+        {/* Filter chips */}
+        <Animated.View entering={FadeInDown.duration(400).delay(180)}>
+          <FilterChips active={filters} onToggle={toggleFilter} />
+        </Animated.View>
 
         {/* Stat strip */}
         <Animated.View
@@ -653,17 +800,17 @@ export default function CommunityScreen() {
           testID="stat-strip"
         >
           <View style={styles.statItem}>
+            <Text style={styles.statNum}>248</Text>
+            <Text style={styles.statLbl}>coaches</Text>
+          </View>
+          <View style={styles.statDiv} />
+          <View style={styles.statItem}>
             <Text style={styles.statNum}>12k</Text>
-            <Text style={styles.statLbl}>members</Text>
+            <Text style={styles.statLbl}>reviews</Text>
           </View>
           <View style={styles.statDiv} />
           <View style={styles.statItem}>
-            <Text style={styles.statNum}>384</Text>
-            <Text style={styles.statLbl}>posts today</Text>
-          </View>
-          <View style={styles.statDiv} />
-          <View style={styles.statItem}>
-            <Text style={[styles.statNum, { color: C.limeDeep }]}>◉ 324</Text>
+            <Text style={[styles.statNum, { color: C.limeDeep }]}>◉ 42</Text>
             <Text style={styles.statLbl}>online</Text>
           </View>
           <Pressable style={styles.statCta} onPress={buzz}>
@@ -671,39 +818,48 @@ export default function CommunityScreen() {
           </Pressable>
         </Animated.View>
 
-        {/* Popular Groups */}
+        {/* Top Rated rail */}
         <View style={styles.sectionHead}>
           <View>
-            <Text style={styles.sectionKicker}>◇ POPULAR</Text>
-            <Text style={styles.sectionTitle}>Your Crews</Text>
+            <Text style={styles.sectionKicker}>◇ TOP RATED</Text>
+            <Text style={styles.sectionTitle}>Elite Coaches</Text>
           </View>
-          <Pressable style={styles.sectionBtn} onPress={buzz} testID="see-all-crews">
-            <Text style={styles.sectionBtnText}>Explore</Text>
+          <Pressable style={styles.sectionBtn} onPress={buzz} testID="see-all-top">
+            <Text style={styles.sectionBtnText}>See all</Text>
             <Feather name="arrow-right" size={14} color={C.ink} />
           </Pressable>
         </View>
-        <GroupsRail />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.rrRail}
+          testID="top-rated-rail"
+        >
+          {TOP_RATED.map((t, i) => (
+            <TopRatedCard key={t.id} t={t} index={i} />
+          ))}
+        </ScrollView>
 
-        {/* Feed */}
+        {/* All Trainers */}
         <View style={styles.sectionHead}>
           <View>
-            <Text style={styles.sectionKicker}>◇ FRESH</Text>
-            <Text style={styles.sectionTitle}>The Feed</Text>
+            <Text style={styles.sectionKicker}>◇ NEAR YOU</Text>
+            <Text style={styles.sectionTitle}>All Coaches</Text>
           </View>
-          <Pressable style={styles.sectionBtn} onPress={buzz} testID="new-post">
-            <Feather name="edit-3" size={13} color={C.ink} />
-            <Text style={styles.sectionBtnText}>Post</Text>
+          <Pressable style={styles.sectionBtn} onPress={buzz} testID="sort-all">
+            <Ionicons name="filter" size={13} color={C.ink} />
+            <Text style={styles.sectionBtnText}>Sort</Text>
           </Pressable>
         </View>
 
         <View style={{ paddingHorizontal: 20, gap: 18 }}>
-          {POSTS.map((p, i) => (
-            <PostCard key={p.id} post={p} index={i} />
+          {ALL_TRAINERS.map((t, i) => (
+            <TrainerCard key={t.id} t={t} index={i} />
           ))}
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>◇ pull to refresh the feed ◇</Text>
+          <Text style={styles.footerText}>◇ 245 more coaches near you ◇</Text>
         </View>
         <View style={{ height: 120 }} />
       </Animated.ScrollView>
@@ -787,55 +943,47 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: C.hair,
   },
-  headerIconDot: {
-    position: "absolute",
-    top: 10,
-    right: 11,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: C.lime,
-    borderWidth: 1.5,
-    borderColor: C.ink,
-  },
 
-  // Tabs
-  tabsWrap: {
+  // Search
+  searchWrap: {
     marginHorizontal: 20,
     marginTop: 4,
-    height: 56,
-    borderRadius: 20,
-    backgroundColor: C.glass,
-    borderWidth: 1,
-    borderColor: C.hair,
-    padding: 6,
+    height: 64,
+    borderRadius: 22,
+    backgroundColor: C.white,
+    borderWidth: 1.5,
     flexDirection: "row",
-    position: "relative",
+    alignItems: "center",
+    paddingHorizontal: 8,
+    shadowColor: C.ink,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 8 },
   },
-  tabPill: {
-    position: "absolute",
-    top: 6,
-    left: 6,
-    bottom: 6,
-    borderRadius: 14,
-    overflow: "hidden",
-  },
-  tabItem: {
-    flex: 1,
+  searchIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 16,
+    backgroundColor: C.bg,
     justifyContent: "center",
     alignItems: "center",
-    flexDirection: "row",
-    gap: 6,
-    zIndex: 2,
   },
-  tabText: {
-    fontSize: 14,
+  searchInput: {
+    flex: 1,
+    marginHorizontal: 12,
+    fontSize: 15,
     fontWeight: "700",
-    color: C.mute,
+    color: C.ink,
     letterSpacing: -0.2,
+    ...(Platform.OS === "web" ? ({ outlineStyle: "none" } as any) : {}),
   },
-  tabTextActive: { color: C.lime },
-  tabDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: C.lime },
+  micBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 16,
+    backgroundColor: C.ink,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 
   // Chips
   chipRow: {
@@ -872,13 +1020,40 @@ const styles = StyleSheet.create({
     marginLeft: 2,
   },
 
-  // Pulse
-  dotWrap: {
-    width: 10,
-    height: 10,
-    justifyContent: "center",
+  // Filter chips
+  filterRow: {
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    gap: 8,
     alignItems: "center",
   },
+  filterFab: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: C.ink,
+    justifyContent: "center",
+    alignItems: "center",
+    flexShrink: 0,
+  },
+  filterChip: {
+    height: 32,
+    flexShrink: 0,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    backgroundColor: C.glassStrong,
+    borderWidth: 1,
+    borderColor: C.hair,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  filterChipOn: { backgroundColor: C.ink, borderColor: C.ink },
+  filterText: { fontSize: 12, fontWeight: "700", color: C.inkSoft },
+  filterTextOn: { color: C.lime },
+
+  // Pulse
+  dotWrap: { width: 10, height: 10, justifyContent: "center", alignItems: "center" },
   dot: { width: 8, height: 8, borderRadius: 4 },
   dotRing: { position: "absolute", width: 8, height: 8, borderRadius: 4 },
 
@@ -886,7 +1061,7 @@ const styles = StyleSheet.create({
   hero: {
     marginHorizontal: 20,
     marginTop: 4,
-    height: HERO_H,
+    height: 380,
     borderRadius: 28,
     overflow: "hidden",
     backgroundColor: C.ink,
@@ -960,7 +1135,7 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     letterSpacing: -1.2,
   },
-  heroMetaRow: { flexDirection: "row", gap: 8, marginTop: 12 },
+  heroMetaRow: { flexDirection: "row", gap: 6, marginTop: 12, flexWrap: "wrap" },
   heroMetaChip: {
     flexDirection: "row",
     alignItems: "center",
@@ -1002,7 +1177,7 @@ const styles = StyleSheet.create({
   // Stat strip
   statStrip: {
     marginHorizontal: 20,
-    marginTop: 18,
+    marginTop: 6,
     height: 68,
     borderRadius: 22,
     backgroundColor: C.ink,
@@ -1036,7 +1211,7 @@ const styles = StyleSheet.create({
     borderColor: C.lime,
   },
 
-  // Section head
+  // Section
   sectionHead: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -1071,51 +1246,84 @@ const styles = StyleSheet.create({
   },
   sectionBtnText: { fontSize: 12, fontWeight: "800", color: C.ink },
 
-  // Groups rail
-  groupsRail: {
-    paddingHorizontal: 20,
-    gap: 12,
-  },
-  groupCard: {
-    width: 220,
-    padding: 12,
-    borderRadius: 20,
+  // Top-rated rail
+  rrRail: { paddingHorizontal: 20, gap: 12 },
+  rrCard: {
+    width: 200,
+    borderRadius: 22,
     backgroundColor: C.white,
     borderWidth: 1,
     borderColor: C.hair,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+    overflow: "hidden",
   },
-  groupIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 14,
+  rrImgWrap: { height: 160, width: "100%", position: "relative" },
+  rrOnline: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: "rgba(0,0,0,0.6)",
     justifyContent: "center",
     alignItems: "center",
   },
-  groupName: {
+  rrOnlineDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: C.lime,
+  },
+  rrVerified: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: C.lime,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: C.ink,
+  },
+  rrBody: { padding: 12 },
+  rrNameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  rrName: {
     fontSize: 14,
     fontWeight: "900",
     color: C.ink,
     letterSpacing: -0.3,
+    flex: 1,
+    marginRight: 6,
   },
-  groupMembers: {
-    fontSize: 11,
-    color: C.mute,
-    fontWeight: "700",
-    marginTop: 2,
-  },
-  groupPlus: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: C.ink,
-    justifyContent: "center",
+  rrRating: {
+    flexDirection: "row",
     alignItems: "center",
+    gap: 3,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    backgroundColor: C.bg,
   },
+  rrRatingText: { fontSize: 11, fontWeight: "900", color: C.ink },
+  rrSpec: { fontSize: 11, color: C.mute, fontWeight: "700", marginTop: 3 },
+  rrFoot: {
+    marginTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  rrPrice: { fontSize: 13, fontWeight: "900", color: C.ink },
+  rrPriceUnit: { color: C.mute, fontWeight: "700", fontSize: 10 },
+  rrDist: { flexDirection: "row", alignItems: "center", gap: 3 },
+  rrDistText: { fontSize: 10, fontWeight: "700", color: C.mute },
 
-  // Card
+  // Trainer card
   card: {
     borderRadius: 26,
     backgroundColor: C.white,
@@ -1126,149 +1334,161 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 10 },
-    padding: 16,
+    padding: 14,
   },
-  postHead: { flexDirection: "row", alignItems: "center" },
-  postAvatarWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    overflow: "hidden",
-    position: "relative",
-  },
-  postAvatar: { width: "100%", height: "100%" },
-  postAvatarRing: {
-    ...StyleSheet.absoluteFillObject,
-    borderWidth: 2,
-    borderColor: C.lime,
-    borderRadius: 22,
-  },
-  postAuthorRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  postAuthor: {
-    fontSize: 14,
-    fontWeight: "900",
-    color: C.ink,
-    letterSpacing: -0.3,
-  },
-  postDot: { width: 3, height: 3, borderRadius: 1.5, backgroundColor: C.mute },
-  postTime: { fontSize: 12, color: C.mute, fontWeight: "700" },
-  postRole: { fontSize: 12, color: C.mute, fontWeight: "600", marginTop: 2 },
-  postMore: {
-    width: 36,
-    height: 36,
+  cardTop: { flexDirection: "row" },
+  trainerImgWrap: {
+    width: 108,
+    height: 128,
     borderRadius: 18,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: C.bgSoft,
-  },
-
-  postTitle: {
-    fontSize: 16,
-    lineHeight: 22,
-    fontWeight: "700",
-    color: C.ink,
-    letterSpacing: -0.3,
-    marginTop: 14,
-    marginBottom: 12,
-  },
-
-  postImgWrap: {
-    height: 220,
-    borderRadius: 20,
     overflow: "hidden",
     backgroundColor: "#111",
   },
+  onlinePill: {
+    position: "absolute",
+    bottom: 8,
+    left: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 999,
+    backgroundColor: "rgba(0,0,0,0.55)",
+  },
+  onlineDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: C.lime },
+  onlineText: { color: C.lime, fontSize: 9, fontWeight: "900", letterSpacing: 1 },
   cardIndex: {
     position: "absolute",
-    top: 14,
-    left: 14,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-    backgroundColor: "rgba(0,0,0,0.35)",
+    top: 8,
+    right: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 6,
+    backgroundColor: "rgba(0,0,0,0.45)",
   },
   cardIndexText: {
     color: C.white,
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: "900",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
   },
   cardIndexTotal: { color: "rgba(255,255,255,0.55)", fontWeight: "700" },
-  cardTag: {
-    position: "absolute",
-    top: 14,
-    right: 14,
+
+  trainerNameRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+  trainerName: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: C.ink,
+    letterSpacing: -0.5,
+    flexShrink: 1,
+  },
+  verifiedTick: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: C.ink,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  trainerSpec: { fontSize: 13, color: C.mute, fontWeight: "700", marginTop: 4 },
+  tagRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 10 },
+  trainerTag: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    gap: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 999,
     backgroundColor: C.lime,
   },
-  cardTagDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: C.ink },
-  cardTagText: {
-    fontSize: 10,
+  trainerTagDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: C.ink,
+  },
+  trainerTagText: {
+    fontSize: 9,
     color: C.ink,
     fontWeight: "900",
     letterSpacing: 1,
   },
-  saveBtn: {
-    position: "absolute",
-    bottom: 14,
-    right: 14,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+  trainerDist: { flexDirection: "row", alignItems: "center", gap: 3 },
+  trainerDistText: { fontSize: 11, fontWeight: "700", color: C.mute },
+  ratingRow: {
+    marginTop: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  ratingText: { fontSize: 13, fontWeight: "900", color: C.ink },
+  reviewsText: { fontSize: 11, color: C.mute, fontWeight: "700" },
+
+  availWrap: {
+    marginTop: 14,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: C.hair,
+  },
+  availLabel: {
+    fontSize: 10,
+    letterSpacing: 1.5,
+    fontWeight: "900",
+    color: C.mute,
+    marginBottom: 8,
+  },
+  availPills: { flexDirection: "row", gap: 6 },
+  availPill: {
+    flex: 1,
+    height: 34,
+    borderRadius: 12,
+    backgroundColor: C.bgSoft,
     justifyContent: "center",
     alignItems: "center",
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.35)",
   },
+  availPillOn: { backgroundColor: C.ink },
+  availText: { fontSize: 11, fontWeight: "900", color: C.mute },
+  availTextOn: { color: C.lime },
 
-  // Post footer / reactions
-  postFooter: {
+  cardFooter: {
     marginTop: 14,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  reactRow: { flexDirection: "row", alignItems: "center" },
-  reactDot: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 2,
-    borderColor: C.white,
-  },
-  reactCount: {
-    fontSize: 12,
-    fontWeight: "800",
+  priceBig: {
+    fontSize: 18,
+    fontWeight: "900",
     color: C.ink,
-    marginLeft: 8,
+    letterSpacing: -0.4,
   },
-  reactActions: { flexDirection: "row", alignItems: "center", gap: 8 },
-  reactBtn: {
-    height: 34,
-    paddingHorizontal: 12,
-    borderRadius: 17,
+  priceUnit: { color: C.mute, fontWeight: "700", fontSize: 12 },
+  priceHint: { fontSize: 10, color: C.limeDeep, fontWeight: "800", marginTop: 2 },
+  footerActions: { flexDirection: "row", alignItems: "center", gap: 8 },
+  chatBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: C.bgSoft,
-    flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
-    gap: 5,
   },
-  reactBtnText: { fontSize: 12, fontWeight: "800", color: C.ink },
-  shareBtn: {
-    height: 34,
-    paddingHorizontal: 12,
-    borderRadius: 17,
+  bookBtn: {
+    height: 42,
+    paddingHorizontal: 16,
+    borderRadius: 21,
     backgroundColor: C.ink,
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 6,
   },
-  shareBtnText: { fontSize: 12, fontWeight: "900", color: C.lime },
+  bookBtnText: {
+    color: C.lime,
+    fontSize: 13,
+    fontWeight: "900",
+    letterSpacing: -0.1,
+  },
 
   // Footer
   footer: { marginTop: 32, alignItems: "center" },
