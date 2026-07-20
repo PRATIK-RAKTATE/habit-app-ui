@@ -461,6 +461,7 @@ function TopRatedCard({
   t: (typeof TOP_RATED)[number];
   index: number;
 }) {
+  const router = useRouter();
   const scale = useSharedValue(1);
   const pressed = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -470,7 +471,10 @@ function TopRatedCard({
       entering={FadeInDown.duration(400).delay(80 * index)}
       onPressIn={() => (scale.value = withSpring(0.97))}
       onPressOut={() => (scale.value = withSpring(1))}
-      onPress={buzz}
+      onPress={() => {
+        buzz();
+        router.push("/coach-detail");
+      }}
       style={[styles.rrCard, pressed]}
       testID={`top-rated-${t.id}`}
     >
@@ -530,6 +534,7 @@ function TrainerCard({
   t: (typeof ALL_TRAINERS)[number];
   index: number;
 }) {
+  const router = useRouter();
   const scale = useSharedValue(1);
   const pressed = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -539,7 +544,10 @@ function TrainerCard({
       entering={FadeInDown.duration(520).delay(120 * index)}
       onPressIn={() => (scale.value = withSpring(0.98))}
       onPressOut={() => (scale.value = withSpring(1))}
-      onPress={buzz}
+      onPress={() => {
+        buzz();
+        router.push("/coach-detail");
+      }}
       style={[styles.card, pressed]}
       testID={`trainer-card-${t.id}`}
     >
